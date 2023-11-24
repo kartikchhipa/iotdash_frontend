@@ -7,9 +7,11 @@ import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  sendEmailVerification,
 } from 'firebase/auth';
 import { getFirestore, collection, doc, getDoc, setDoc } from 'firebase/firestore';
 //
+import { Navigate } from 'react-router';
 import { FIREBASE_API } from '../config';
 
 // ----------------------------------------------------------------------
@@ -64,7 +66,7 @@ function AuthProvider({ children }) {
   useEffect(
     () =>
       onAuthStateChanged(AUTH, async (user) => {
-        if (user) {
+        if (user && user.emailVerified) {        
           const userRef = doc(DB, 'users', user.uid);
 
           const docSnap = await getDoc(userRef);
@@ -72,9 +74,8 @@ function AuthProvider({ children }) {
           if (docSnap.exists()) {
             setProfile(docSnap.data());
           }
-
           dispatch({
-            type: 'INITIALISE',
+            type: 'INITIALISE', 
             payload: { isAuthenticated: true, user },
           });
         } else {
@@ -87,18 +88,53 @@ function AuthProvider({ children }) {
     [dispatch]
   );
 
-  const login = (email, password) => signInWithEmailAndPassword(AUTH, email, password);
+  const login = (email, password) => {
+    signInWithEmailAndPassword(AUTH, email, password)
+      .then((userCredential) => {
+        // Check if the user's email is verified
+        const user = userCredential.user;
+        if (user && !user.emailVerified) {
+          // The user's email is not verified, sign them out
+          alert('Email is not verified. Please verify your email before logging in.');
+          signOut(AUTH);   
+        } else {
+          // The user's email is verified, you can proceed with the login
+          // Your logic for successful login here
+        }
+      })
+      .catch((error) => {
+        // Handle login error and display it in an alert
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        alert(`Login Error: ${errorCode} - ${errorMessage}`);
+        signOut(AUTH);
+      });
+  };
 
-  const register = (email, password, firstName, lastName) =>
-    createUserWithEmailAndPassword(AUTH, email, password).then(async (res) => {
-      const userRef = doc(collection(DB, 'users'), res.user?.uid);
-
-      await setDoc(userRef, {
-        uid: res.user?.uid,
+  const register = async (email, password, firstName, lastName) => {
+    try {
+      const userCredential = await createUserWithEmailAndPassword(AUTH, email, password);
+      const user = userCredential.user;
+  
+      // Send email verification
+      await sendEmailVerification(user);
+      
+      // The user's email has been verified, you can proceed to set user data and access the dashboard.
+      const userRef = doc(collection(DB, 'users'), user.uid);
+      setDoc(userRef, {
+        uid: user.uid,
         email,
         displayName: `${firstName} ${lastName}`,
       });
-    });
+
+      alert('Please check your email to verify your account!')
+      signOut(AUTH);
+    } catch (error) {
+      console.error('Registration error: ', error);
+      // Handle the error
+    }
+  };
+
 
   const logout = () => signOut(AUTH);
 

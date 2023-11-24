@@ -74,9 +74,10 @@ function AuthProvider({ children }) {
         if (accessToken && isValidToken(accessToken)) {
           setSession(accessToken);
 
-          const response = await axios.get('/api/account/my-account');
-          const { user } = response.data;
-
+          const response = await axios.get('http://localhost:8080/accounts/getUser');
+          const user = response.data;
+          console.log("Hello");
+          console.log(user);
           dispatch({
             type: 'INITIALIZE',
             payload: {
@@ -106,31 +107,46 @@ function AuthProvider({ children }) {
     };
 
     initialize();
-  }, []);
+  },[]);
 
   const login = async (email, password) => {
-    const response = await axios.post('/api/account/login', {
-      email,
-      password,
-    });
-    const { accessToken, user } = response.data;
-
-    setSession(accessToken);
-    dispatch({
-      type: 'LOGIN',
-      payload: {
-        user,
-      },
-    });
+    try {
+      const formData = new FormData();
+      formData.append('email', email);
+      formData.append('password', password);
+  
+      const response = await axios.post('http://localhost:8080/accounts/login/', formData);
+  
+      console.log(response.data);
+      
+      
+      const { accessToken, user } = response.data;
+  
+      setSession(accessToken);
+      dispatch({
+        type: 'LOGIN',
+        payload: {
+          user,
+        },
+      });
+    } catch (error) {
+      if (error.response && error.response.data) {
+        console.error('Login failed:', error.response.data);
+      } else {
+        console.error('Login failed:', error.message);
+      }
+    }
   };
-
+  
+  
   const register = async (email, password, firstName, lastName) => {
-    const response = await axios.post('/api/account/register', {
-      email,
-      password,
-      firstName,
-      lastName,
-    });
+    const formData = new FormData();
+      formData.append('email', email);
+      formData.append('name', `${firstName} ${lastName}`);
+      formData.append('password', password);
+      formData.append('password2', password);
+    const response = await axios.post('http://localhost:8080/accounts/register/', formData); 
+    console.log(response.data);
     const { accessToken, user } = response.data;
 
     window.localStorage.setItem('accessToken', accessToken);
