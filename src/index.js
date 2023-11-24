@@ -51,7 +51,6 @@ import { AuthProvider } from './contexts/JWTContext';
 import App from './App';
 import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 import reportWebVitals from './reportWebVitals';
-
 // ----------------------------------------------------------------------
 
 ReactDOM.render(
