@@ -2,6 +2,7 @@
 import { useState, useEffect, useDispatch } from 'react';
 // @mui
 import { Card, Button, Container, DialogTitle, Box, Grid, TextField, FormControl, InputLabel, Select, Stack, MenuItem, Typography } from '@mui/material';
+import axios from 'axios';
 // routes
 import { PATH_DASHBOARD } from '../../routes/paths';
 // hooks
@@ -65,31 +66,22 @@ export default function AddDevice() {
     }
 
     if (deviceName && deviceID) {
-      const formData = {
-        // eslint-disable-next-line object-shorthand
-        device_name: deviceName,
-        // eslint-disable-next-line object-shorthand
-        device_id: deviceID,
-      };
-      console.log(formData)
-      const settings = {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      };
-      const response = await fetch(
-        "/api/devices/",
-        settings
-      );
+      
+
+
+      const formData = new FormData();
+      formData.append('device_name', deviceName);
+      formData.append('device_id', deviceID);
+      /* eslint-disable prefer-template */
+      
+      const response = await axios.post(
+        'http://localhost:8080/api/devices/', { headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}`}}, formData)
+
       if (response.status === 200) {
         alert("Device Added Succesfully!");
         window.location.reload();
       } else {
-        const data = await response.json();
-        alert(data);
+        console.log(response.statusText);
       }
     }
   };

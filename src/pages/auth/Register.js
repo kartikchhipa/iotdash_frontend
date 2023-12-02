@@ -84,11 +84,11 @@ export default function Register() {
         {mdUp && (
           <SectionStyle>
             <Typography variant="h3" sx={{ px: 5, mt: 10, mb: 5 }}>
-              Manage the job more effectively with Minimal
+              Manage the IoT Devices more effectively 
             </Typography>
             <Image
               alt="register"
-              src="https://minimal-assets-api.vercel.app/assets/illustrations/illustration_register.png"
+              src="https://img.freepik.com/free-photo/3d-render-secure-login-password-illustration_107791-16640.jpg"
             />
           </SectionStyle>
         )}
@@ -102,25 +102,17 @@ export default function Register() {
                 </Typography>
                 <Typography sx={{ color: 'text.secondary' }}>Free forever. No credit card needed.</Typography>
               </Box>
-              <Tooltip title={capitalCase(method)}>
-                <>
-                  <Image
-                    disabledEffect
-                    src={`https://minimal-assets-api.vercel.app/assets/icons/auth/ic_${method}.png`}
-                    sx={{ width: 32, height: 32 }}
-                  />
-                </>
-              </Tooltip>
+              
             </Box>
 
             <RegisterForm />
 
             <Typography variant="body2" align="center" sx={{ color: 'text.secondary', mt: 3 }}>
-              By registering, I agree to Minimal&nbsp;
+              By registering, I agree to 
               <Link underline="always" color="text.primary" href="#">
-                Terms of Service
+              &nbsp;Terms of Service&nbsp;
               </Link>
-              and
+              and &nbsp;
               <Link underline="always" color="text.primary" href="#">
                 Privacy Policy
               </Link>
