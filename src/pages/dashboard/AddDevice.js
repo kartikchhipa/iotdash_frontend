@@ -55,7 +55,7 @@ export default function AddDevice() {
 
   // function to add device to the database
   const submitEventAddDevice = async (e) => {
-
+    
     e.preventDefault();
     setDeviceNameError(false);
     if (deviceName === "") {
@@ -75,15 +75,57 @@ export default function AddDevice() {
       /* eslint-disable prefer-template */
       
       const response = await axios.post(
-        'http://localhost:8080/api/devices/', { headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}`}}, formData)
+        '/api/devices/', formData, {headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }})
 
       if (response.status === 200) {
         alert("Device Added Succesfully!");
-        window.location.reload();
       } else {
-        console.log(response.statusText);
+        alert("Device Already Exists!");
+        
       }
     }
+  };
+
+  const submitAddSensor = async (e) => {
+    e.preventDefault();
+    setDeviceIDSensorError(false);
+    
+    if (deviceIDSensor === "") {
+      setDeviceIDSensorError(true);
+    }
+    if (sensorType === "") {
+      setSensorTypeError(true);
+    }
+    if (sensorId === "") {
+      setSensorIdError(true);
+    }
+    if (unit === "") {
+      setUnitError(true);
+    }
+    if (sensorValueType === "") {
+      setSensorValueTypeError(true);
+    }
+
+    if (deviceIDSensor && sensorType && sensorId && unit && sensorValueType) {
+      const formData = new FormData();
+      formData.append('sensor_id', sensorId);
+      formData.append('sensor_type', sensorType);
+      formData.append('unit', unit);
+      formData.append('device_id', deviceIDSensor);
+      formData.append('value_type', sensorValueType);
+      /* eslint-disable prefer-template */
+      
+      const response = await axios.post(
+        '/api/addSensor/', formData, {headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }})
+
+      if (response.status === 200) {
+        alert("Sensor Added Succesfully!");
+      } else {
+        alert("Sensor Already Exists!");
+        
+      }
+    }
+
   };
 
   // function to map device to the user
@@ -95,31 +137,24 @@ export default function AddDevice() {
     if (device === "") {
       setDeviceError(true);
     }
-    const formData = {
-      // eslint-disable-next-line object-shorthand
-      userID: user,
-      // eslint-disable-next-line object-shorthand
-      device_id: device,
-    }
-    const settings = {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
 
-      },
-      body: JSON.stringify(formData),
-    }
-    const response = await fetch(
-      "/api/deviceAllocation/",
-      settings
-    );
+
+
+    const formData = new FormData();
+      formData.append('userID', user);
+      formData.append('device_id', device);
+      /* eslint-disable prefer-template */
+      
+      const response = await axios.post(
+        '/api/deviceAllocation/', formData, {headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }})
+
     if (response.status === 200) {
       alert("Device Mapped Succesfully!");
-      window.location.reload();
-    } else {
-      const data = await response.json();
-      alert(data);
+    } else if(response.status === 208){
+      alert("Device already Mapped!");
+    }
+    else{
+      alert("Device Does not Exist!");
     }
   };
 
@@ -202,7 +237,7 @@ export default function AddDevice() {
         >
           
           <Typography variant="subtitle2" paddingBottom={2}>Fill either Add Device or Add Sensor</Typography>
-          <Card>
+          <Card >
             <Typography variant='h5' paddingLeft={3} paddingTop={2}>Add Device</Typography>
             <div style={{ padding: '20px' }}>
               <Grid container spacing={2}>
@@ -280,6 +315,7 @@ export default function AddDevice() {
                     variant="outlined"
                     fullWidth
                     required
+                    error = {userError}
                   >
                     <InputLabel>User</InputLabel>
                     <Select label="User" value={user} onChange={
@@ -300,6 +336,7 @@ export default function AddDevice() {
                     variant="outlined"
                     fullWidth
                     required
+                    error = {deviceError}
                   >
                     <InputLabel>Device Name</InputLabel>
                     <Select label="Device Name" value={device} onChange={
@@ -367,7 +404,7 @@ export default function AddDevice() {
             action=""
             noValidate
             autoComplete="off"
-          // onSubmit={handleSubmitEvent}
+           onSubmit={submitAddSensor}
           >
             <Card >
               <div style={{ padding: 20 }}>
@@ -380,7 +417,7 @@ export default function AddDevice() {
 
                       fullWidth
                       required
-                    // error={locationIDError}
+                      error={deviceIDSensorError}
 
                     >
                       <InputLabel>Device Name</InputLabel>

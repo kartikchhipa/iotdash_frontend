@@ -69,10 +69,10 @@ function AuthProvider({ children }) {
   useEffect(() => {
     const initialize = async () => {
       try {
-        const accessToken = window.localStorage.getItem('accessToken');
+        const token = window.localStorage.getItem('token');
 
-        if (accessToken && isValidToken(accessToken)) {
-          setSession(accessToken);
+        if (token && isValidToken(token)) {
+          setSession(token);
 
           const response = await axios.get('http://localhost:8080/accounts/getUser');
           const user = response.data;
@@ -119,14 +119,15 @@ function AuthProvider({ children }) {
   
       console.log(response.data);
       
+      /* eslint-disable camelcase */
+      const { token, user_details } = response.data;
       
-      const { accessToken, user } = response.data;
-  
-      setSession(accessToken);
+      localStorage.setItem('token', token.access)
+      setSession(token);
       dispatch({
         type: 'LOGIN',
         payload: {
-          user,
+          user_details,
         },
       });
     } catch (error) {
@@ -147,13 +148,13 @@ function AuthProvider({ children }) {
       formData.append('password2', password);
     const response = await axios.post('http://localhost:8080/accounts/register/', formData); 
     console.log(response.data);
-    const { accessToken, user } = response.data;
+    const { token, user_details } = response.data;
 
-    window.localStorage.setItem('accessToken', accessToken);
+    localStorage.setItem('token', token.access);
     dispatch({
       type: 'REGISTER',
       payload: {
-        user,
+        user_details,
       },
     });
   };
