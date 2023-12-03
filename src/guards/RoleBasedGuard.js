@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import { Container, Alert, AlertTitle } from '@mui/material';
+import jwtDecode from 'jwt-decode';
 
 // ----------------------------------------------------------------------
 
@@ -9,9 +10,11 @@ RoleBasedGuard.propTypes = {
 };
 
 const useCurrentRole = () => {
-  // Logic here to get current user role
-  const role = 'admin';
-  return role;
+  
+  const token = window.localStorage.getItem('refresh');
+  const decodedToken = jwtDecode(token);
+  console.log(decodedToken);
+  return decodedToken.is_staff ? 'admin' : 'user';
 };
 
 export default function RoleBasedGuard({ accessibleRoles, children }) {

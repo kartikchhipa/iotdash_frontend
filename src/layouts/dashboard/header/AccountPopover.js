@@ -15,6 +15,7 @@ import MenuPopover from '../../../components/MenuPopover';
 import { IconButtonAnimate } from '../../../components/animate';
 
 // ----------------------------------------------------------------------
+/* eslint camelcase: ["error", {ignoreDestructuring: true, allow: ["user_details"]}] */
 
 const MENU_OPTIONS = [
   {
@@ -33,8 +34,7 @@ const MENU_OPTIONS = [
 export default function AccountPopover() {
   const navigate = useNavigate();
 
-  const { user, logout } = useAuth();
-
+  const { user_details, logout } = useAuth();
   const isMountedRef = useIsMountedRef();
 
   const { enqueueSnackbar } = useSnackbar();
@@ -101,10 +101,10 @@ export default function AccountPopover() {
       >
         <Box sx={{ my: 1.5, px: 2.5 }}>
           <Typography variant="subtitle2" noWrap>
-            {user?.displayName}
+            {user_details?.displayName}
           </Typography>
           <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
-            {user?.email}
+            {user_details?.email}
           </Typography>
         </Box>
 

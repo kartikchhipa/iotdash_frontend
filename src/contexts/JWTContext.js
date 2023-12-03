@@ -9,43 +9,48 @@ import { isValidToken, setSession } from '../utils/jwt';
 const initialState = {
   isAuthenticated: false,
   isInitialized: false,
-  user: null,
+  user_details: null,
 };
+
+// ignore camel case in this file
+/* eslint camelcase: ["error", {ignoreDestructuring: true, allow: ["user_details"]}] */
 
 const handlers = {
   INITIALIZE: (state, action) => {
-    const { isAuthenticated, user } = action.payload;
+    const { isAuthenticated, user_details } = action.payload;
     return {
       ...state,
       isAuthenticated,
       isInitialized: true,
-      user,
+      user_details,
     };
   },
   LOGIN: (state, action) => {
-    const { user } = action.payload;
+    const { user_details } = action.payload;
 
     return {
       ...state,
       isAuthenticated: true,
-      user,
+      user_details,
     };
   },
   LOGOUT: (state) => ({
     ...state,
     isAuthenticated: false,
-    user: null,
+    user_details: null,
   }),
   REGISTER: (state, action) => {
-    const { user } = action.payload;
+    const { user_details } = action.payload;
 
     return {
       ...state,
       isAuthenticated: true,
-      user,
+      user_details,
     };
   },
 };
+
+
 
 const reducer = (state, action) => (handlers[action.type] ? handlers[action.type](state, action) : state);
 
@@ -75,14 +80,14 @@ function AuthProvider({ children }) {
           setSession(token);
 
           const response = await axios.get('http://localhost:8080/accounts/getUser');
-          const user = response.data;
+          const user_details = response.data;
           console.log("Hello");
-          console.log(user);
+          console.log(user_details);
           dispatch({
             type: 'INITIALIZE',
             payload: {
               isAuthenticated: true,
-              user,
+              user_details,
             },
           });
         } else {
@@ -90,7 +95,7 @@ function AuthProvider({ children }) {
             type: 'INITIALIZE',
             payload: {
               isAuthenticated: false,
-              user: null,
+              user_details: null,
             },
           });
         }
@@ -100,7 +105,7 @@ function AuthProvider({ children }) {
           type: 'INITIALIZE',
           payload: {
             isAuthenticated: false,
-            user: null,
+            user_details: null,
           },
         });
       }
@@ -116,13 +121,14 @@ function AuthProvider({ children }) {
       formData.append('password', password);
   
       const response = await axios.post('http://localhost:8080/accounts/login/', formData);
+
   
       console.log(response.data);
       
       /* eslint-disable camelcase */
-      const { token, user_details } = response.data;
-      
+      const { token,  user_details} = response.data;
       localStorage.setItem('token', token.access)
+      localStorage.setItem('refresh', token.refresh)
       setSession(token);
       dispatch({
         type: 'LOGIN',
@@ -130,6 +136,7 @@ function AuthProvider({ children }) {
           user_details,
         },
       });
+      console.log(handlers)
     } catch (error) {
       if (error.response && error.response.data) {
         console.error('Login failed:', error.response.data);
@@ -149,8 +156,9 @@ function AuthProvider({ children }) {
     const response = await axios.post('http://localhost:8080/accounts/register/', formData); 
     console.log(response.data);
     const { token, user_details } = response.data;
-
+    console.log(user_details)
     localStorage.setItem('token', token.access);
+    localStorage.setItem('user_details', user_details);
     dispatch({
       type: 'REGISTER',
       payload: {

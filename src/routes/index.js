@@ -1,17 +1,20 @@
 import { Suspense, lazy } from 'react';
 import { Navigate, useRoutes, useLocation } from 'react-router-dom';
 // layouts
+
 import MainLayout from '../layouts/main';
 import DashboardLayout from '../layouts/dashboard';
 import LogoOnlyLayout from '../layouts/LogoOnlyLayout';
 // guards
 import GuestGuard from '../guards/GuestGuard';
 import AuthGuard from '../guards/AuthGuard';
+import RoleBasedGuard from '../guards/RoleBasedGuard';
 // import RoleBasedGuard from '../guards/RoleBasedGuard';
 // config
 import { PATH_AFTER_LOGIN } from '../config';
 // components
 import LoadingScreen from '../components/LoadingScreen';
+
 
 // ----------------------------------------------------------------------
 
@@ -25,6 +28,10 @@ const Loadable = (Component) => (props) => {
     </Suspense>
   );
 };
+
+
+
+
 
 export default function Router() {
   return useRoutes([
@@ -127,7 +134,11 @@ export default function Router() {
         // {path: 'add-sensor', element: <AddSensor />},
         // {path: 'list-sensor', element: <UserList/>},
         
-        { path: 'add', element: <AddDevice /> },
+        { path: 'add', element: (
+          <RoleBasedGuard accessibleRoles={['admin']}>
+         <AddDevice /> 
+         </RoleBasedGuard>
+         )},
         // { path: 'kanban', element: <Kanban /> },
       ],
     },
