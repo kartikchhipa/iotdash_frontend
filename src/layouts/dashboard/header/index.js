@@ -1,7 +1,10 @@
+import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 // @mui
+
 import { styled } from '@mui/material/styles';
-import { Box, Stack, AppBar, Toolbar } from '@mui/material';
+import { Box, Stack, AppBar, Toolbar, TextField, Grid } from '@mui/material';
+import axios from 'axios';
 // hooks
 import useOffSetTop from '../../../hooks/useOffSetTop';
 import useResponsive from '../../../hooks/useResponsive';
@@ -16,9 +19,8 @@ import { IconButtonAnimate } from '../../../components/animate';
 //
 import Searchbar from './Searchbar';
 import AccountPopover from './AccountPopover';
-import LanguagePopover from './LanguagePopover';
-import ContactsPopover from './ContactsPopover';
-import NotificationsPopover from './NotificationsPopover';
+
+
 
 // ----------------------------------------------------------------------
 
@@ -58,9 +60,28 @@ DashboardHeader.propTypes = {
 };
 
 export default function DashboardHeader({ onOpenSidebar, isCollapse = false, verticalLayout = false }) {
+
+
+
   const isOffset = useOffSetTop(HEADER.DASHBOARD_DESKTOP_HEIGHT) && !verticalLayout;
 
   const isDesktop = useResponsive('up', 'lg');
+  const [devices, setDevices] = useState([]);
+  const [selectedDevice, setSelectedDevice] = useState('');
+
+  useEffect(() => {
+    const fetchDevices = async () => {
+      try{
+        const response = await axios.get('/api/devices/', {headers : {Authorization: `Bearer ${localStorage.getItem('accessToken')}`}});
+        setDevices(response.data);
+        return response.data;
+      }
+      catch(err){
+        console.log(err);
+      }
+    }
+    fetchDevices();
+  }, []);
 
   return (
     <RootStyle isCollapse={isCollapse} isOffset={isOffset} verticalLayout={verticalLayout}>
@@ -73,15 +94,55 @@ export default function DashboardHeader({ onOpenSidebar, isCollapse = false, ver
         {isDesktop && verticalLayout && <Logo sx={{ mr: 2.5 }} />}
 
         {!isDesktop && (
-          <IconButtonAnimate onClick={onOpenSidebar} sx={{ mr: 1, color: 'text.primary' }}>
-            <Iconify icon="eva:menu-2-fill" />
+          <IconButtonAnimate onClick={onOpenSidebar} sx={{ mr: 2, color: 'text.primary' }}>
+            <Iconify icon="eva:menu-2-fill"/>
           </IconButtonAnimate>
         )}
 
-        <Searchbar />
+        <TextField
+          select
+          label="Select Device"
+          SelectProps={{ native: true }}
+          onChange={(e) => setSelectedDevice(e.target.value)}
+          sx={{
+
+            paddingTop: 2,
+            '& label': { top: 8, left: 0, typography: 'subtitle1' },
+            '& fieldset': { border: '0 !important' },
+            '& select': {
+              pl: 1,
+              py: 0.5,
+              pr: '24px !important',
+              typography: 'subtitle1',
+            },
+            '& .MuiOutlinedInput-root': {
+              borderRadius: 0.75,
+              bgcolor: 'background.neutral',
+            },
+            '& .MuiNativeSelect-icon': {
+              top: 4,
+              right: 0,
+              width: 20,
+              height: 20,
+            },
+          }}
+        >
+          <option  value=" " key="Choose A Device">{}</option>
+          {devices.map((option) => (
+          <option   key={option.device_id} value={option.device_id}>
+            {option.device_id}
+          </option> 
+        ))}
+        </TextField>
+          
+        
+        
+
+        
         <Box sx={{ flexGrow: 1 }} />
 
         <Stack direction="row" alignItems="center" spacing={{ xs: 0.5, sm: 1.5 }}>
+          <Searchbar device_id={selectedDevice}/>
           <AccountPopover />
         </Stack>
       </Toolbar>

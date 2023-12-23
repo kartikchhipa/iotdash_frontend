@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 // @mui
-import { useTheme } from '@mui/material/styles';
 import { Card, CardHeader, Stack, Box, Typography, Grid, TextField, TableContainer, Table, TablePagination, TableBody, TableRow, TableCell, Container } from '@mui/material';
 import Scrollbar from '../../../../components/Scrollbar';
 import { UserListHead } from '../../user/list';
@@ -16,7 +15,6 @@ export default function BinaryData({ allData }) {
     const [sensorData, setSensorData] = useState([]);
     const [graphData, setGraphData] = useState([]);
     const [rowsPerPage, setRowsPerPage] = useState(5);
-    const [filterName, setFilterName] = useState('');
     const [selected, setSelected] = useState([]);
 
     useEffect(() => {
@@ -40,8 +38,6 @@ export default function BinaryData({ allData }) {
             setGraphData([]);
         }
     }, [sensorData]);
-    console.log(sensorData)
-    console.log(graphData)
 
 
 
@@ -80,19 +76,12 @@ export default function BinaryData({ allData }) {
                     <TableContainer >
                         <Table>
                             <UserListHead
-                                // order={order}
-                                // orderBy={orderBy}
                                 headLabel={TABLE_HEAD}
-                                // rowCount={userList.length}
-                                // numSelected={selected.length}
                                 onRequestSort={handleRequestSort}
-                            // onSelectAllClick={handleSelectAllClick}
                             />
                             <TableBody>
                                 {graphData.length>0 && graphData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
                                     const { sensor_id, data } = row;
-                                    
-                                    // id, name, role,  company,  status, avatarUrl, isVerified
                                     const isItemSelected = selected.indexOf(sensor_id) !== -1;
 
                                     return (
@@ -105,15 +94,12 @@ export default function BinaryData({ allData }) {
                                             aria-checked={isItemSelected}
                                         >
                                             <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-
                                                 <Typography variant="subtitle2" noWrap>
                                                     {sensor_id}
                                                 </Typography>
                                             </TableCell>
                                             <TableCell align="right">{data}</TableCell>
-
                                         </TableRow>
-
                                     );
                                 })}
                                 {emptyRows > 0 && (
@@ -139,36 +125,6 @@ export default function BinaryData({ allData }) {
         </Card>
 
     );
-}
-
-
-function descendingComparator(a, b, orderBy) {
-    if (b[orderBy] < a[orderBy]) {
-        return -1;
-    }
-    if (b[orderBy] > a[orderBy]) {
-        return 1;
-    }
-    return 0;
-}
-
-function getComparator(order, orderBy) {
-    return order === 'desc'
-        ? (a, b) => descendingComparator(a, b, orderBy)
-        : (a, b) => -descendingComparator(a, b, orderBy);
-}
-
-function applySortFilter(array, comparator, query) {
-    const stabilizedThis = array.map((el, index) => [el, index]);
-    stabilizedThis.sort((a, b) => {
-        const order = comparator(a[0], b[0]);
-        if (order !== 0) return order;
-        return a[1] - b[1];
-    });
-    if (query) {
-        return array.filter((_user) => _user.name.toLowerCase().indexOf(query.toLowerCase()) !== -1);
-    }
-    return stabilizedThis.map((el) => el[0]);
 }
 
 // ----------------------------------------------------------------------

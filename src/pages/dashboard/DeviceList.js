@@ -16,6 +16,7 @@ import {
 
 
 } from '@mui/material';
+import axios from 'axios';
 // routes
 import { PATH_DASHBOARD } from '../../routes/paths';
 // hooks
@@ -32,7 +33,9 @@ import { UserListHead, UserListToolbar, UserMoreMenu } from '../../sections/@das
 // ----------------------------------------------------------------------
 
 /* eslint-disable camelcase */
-
+/* eslint-disable no-restricted-globals */
+/* eslint-disable no-useless-return */
+/* eslint-disable object-shorthand */
 
 const TABLE_HEAD = [
   { id: 'device_id', label: 'Device ID', alignRight: false },
@@ -42,24 +45,22 @@ const TABLE_HEAD = [
 
 // ----------------------------------------------------------------------
 
+console.log(localStorage.getItem('accessToken'));
+
 export default function UserList() {
 
-
-
-
   useEffect(() => {
-    fetch("/api/devices", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }).then((res) => res.json()).then((data) => {
-      setUserList(data);
-      console.log(data);
-      return data;
-    }).catch((err) => {
-      console.log(err);
-    })
+    const fetchDeviceList = async () => {
+      try {
+
+        const response = await axios.get(`/api/devices/`, {headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('accessToken')}`}})
+        setUserList(response.data);
+        return response.data;
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    fetchDeviceList();
   }, []);
 
   const { themeStretch } = useSettings();
@@ -84,10 +85,24 @@ export default function UserList() {
     setPage(0);
   };
 
-  const handleDeleteUser = async (sensor_id) => {
-    const deleteUser = userList.filter((sensor) => sensor.sensor_id !== sensor_id);
-    setSelected([]);
-    setUserList(deleteUser);
+  const handleDeleteUser = async (device_id) => {
+    console.log(device_id)  
+    if(confirm("Are you sure you want to delete this device?")){
+      try{
+        const response = await axios.delete('/api/devices/', {data : {device_id : device_id}}, {headers : {'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('accessToken')}`}})
+        if(response.status === 200){
+          const deleteUser = userList.filter((device) => device.device_id !== device_id);
+          setSelected([]);
+          setUserList(deleteUser);
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    }
+    else{
+      return;
+    }
+    
   };
 
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - userList.length) : 0;
@@ -126,7 +141,7 @@ export default function UserList() {
                   <TableBody>
                     {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
                       const { device_id, device_name } = row;
-                      // id, name, role,  company,  status, avatarUrl, isVerified
+                      
                       const isItemSelected = selected.indexOf(device_id) !== -1;
                       return (
                         <TableRow

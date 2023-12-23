@@ -12,10 +12,11 @@ import Page from '../../components/Page';
 import Iconify from '../../components/Iconify';
 import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
 
-
+/* eslint-disable camelcase */
 
 // ----------------------------------------------------------------------
 
+const django_app_host = 'http://10.6.0.56:8080'
 
 export default function AddDevice() {
   const { themeStretch } = useSettings();
@@ -75,7 +76,7 @@ export default function AddDevice() {
       /* eslint-disable prefer-template */
       
       const response = await axios.post(
-        '/api/devices/', formData, {headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }})
+        `/api/devices/`, formData, {headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }})
 
       if (response.status === 200) {
         alert("Device Added Succesfully!");
@@ -116,7 +117,7 @@ export default function AddDevice() {
       /* eslint-disable prefer-template */
       
       const response = await axios.post(
-        '/api/addSensor/', formData, {headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }})
+        `/api/addSensor/`, formData, {headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }})
 
       if (response.status === 200) {
         alert("Sensor Added Succesfully!");
@@ -146,7 +147,7 @@ export default function AddDevice() {
       /* eslint-disable prefer-template */
       
       const response = await axios.post(
-        '/api/deviceAllocation/', formData, {headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }})
+        `/api/deviceAllocation/`, formData, {headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }})
 
     if (response.status === 200) {
       alert("Device Mapped Succesfully!");
@@ -160,49 +161,48 @@ export default function AddDevice() {
 
   // function to fetch the user details from the database
   useEffect(() => {
-    fetch("/accounts/getAllUsers", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((resp) => resp.json())
-      .then((data) => {
-        setAllUsers(data);
-        return data;
-      });
+    const fetchUsers = async () => {
+      try{
+        const response = await axios.get(`/accounts/getAllUsers/`, {headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }})
+        setAllUsers(response.data);
+        return response.data;
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    fetchUsers();
   }, []);
 
 
   // function to get the list of sensors already present in the database
   useEffect(() => {
-    fetch("/api/sensorData", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((resp) => resp.json())
-      .then((data) => {
-        setSensorData(data);
-        return data;
-      });
+
+    const fetchSensorData = async () => {
+      try{
+        const response = await axios.get(`/api/sensorData/`, {headers: { 'Content-Type': 'application/json' , Authorization: `Bearer ${localStorage.getItem('token')}` }})
+        setSensorData(response.data);
+        return response.data;
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    fetchSensorData();
   }, []);
 
 
   // function to get the list of devices already present in the database
   useEffect(() => {
-    fetch("/api/devices", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((resp) => resp.json())
-      .then((data) => {
-        setDeviceList(data);
-        return data;
-      });
+
+    const fetchDevices = async () => {
+      try{
+        const response = await axios.get(`/api/devices/`, {headers: { 'Content-Type': 'application/json' , Authorization: `Bearer ${localStorage.getItem('token')}` }})
+        setDeviceList(response.data);
+        return response.data;
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    fetchDevices();
   }, []);
 
   // function to check the number of sensors of a particular type with the given device id 

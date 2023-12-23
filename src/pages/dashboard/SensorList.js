@@ -1,9 +1,8 @@
-import { sentenceCase } from 'change-case';
 import '../../hidescrollbar.css';
 import { useState, useEffect } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+
 // @mui
-import { useTheme } from '@mui/material/styles';
+
 import axios from 'axios';
 import {
   Card,
@@ -27,10 +26,7 @@ import useSettings from '../../hooks/useSettings';
 import { _userList } from '../../_mock';
 // components
 import Page from '../../components/Page';
-import Label from '../../components/Label';
-import Iconify from '../../components/Iconify';
 import Scrollbar from '../../components/Scrollbar';
-import SearchNotFound from '../../components/SearchNotFound';
 import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
 // sections
 import { UserListHead, UserListToolbar, UserMoreMenu } from '../../sections/@dashboard/user/list';
@@ -38,7 +34,7 @@ import { UserListHead, UserListToolbar, UserMoreMenu } from '../../sections/@das
 // ----------------------------------------------------------------------
 
 /* eslint-disable camelcase */
-
+const django_app_host = 'http://10.6.0.56:8080'
 
 const TABLE_HEAD = [
   { id: 'sensor_id', label: 'Sensor ID', alignRight: false },
@@ -46,8 +42,6 @@ const TABLE_HEAD = [
   { id: 'sensor_type', label: 'Sensor Type', alignRight: false },
   { id: 'value_type', label: 'Values Type', alignRight: false },
   { id: 'unit', label: 'Unit', alignRight: false },
-  // { id: 'isVerified', label: 'Verified', alignRight: false },
-  // { id: 'status', label: 'Status', alignRight: false },
   { id: '' },
 ];
 
@@ -57,26 +51,19 @@ export default function UserList() {
 
 
   useEffect(() => {
-    fetch("/api/sensorData", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }).then((res) => res.json()).then((data) => {
-      console.log(data);
-      setUserList(data);
-      return data;
-    }).catch((err) => {
-      console.log(err);
-    })
+
+    const fetchData = async () => {
+      try{
+        const response = await axios.get(`/api/sensorData/`, {headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('accessToken')}`}})
+        setUserList(response.data);
+        return response.data;
+      }catch(err){
+        console.log(err);
+      }
+    }
+    fetchData();
   }, []);
-
-  
-
-
-  const theme = useTheme();
   const { themeStretch } = useSettings();
-  console.log(_userList)
   const [userList, setUserList] = useState([]);
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState('asc');
@@ -85,42 +72,10 @@ export default function UserList() {
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const handleRequestSort = (property) => {
-    const isAsc = orderBy === property && order === 'asc';
-    setOrder(isAsc ? 'desc' : 'asc');
-    setOrderBy(property);
-  };
-
-  // const handleSelectAllClick = (checked) => {
-  //   if (checked) {
-  //     const newSelecteds = userList.map((n) => n.name);
-  //     setSelected(newSelecteds);
-  //     return;
-  //   }
-  //   setSelected([]);
-  // };
-
-  // const handleClick = (name) => {
-  //   const selectedIndex = selected.indexOf(name);
-  //   let newSelected = [];
-  //   if (selectedIndex === -1) {
-  //     newSelected = newSelected.concat(selected, name);
-  //   } else if (selectedIndex === 0) {
-  //     newSelected = newSelected.concat(selected.slice(1));
-  //   } else if (selectedIndex === selected.length - 1) {
-  //     newSelected = newSelected.concat(selected.slice(0, -1));
-  //   } else if (selectedIndex > 0) {
-  //     newSelected = newSelected.concat(selected.slice(0, selectedIndex), selected.slice(selectedIndex + 1));
-  //   }
-  //   setSelected(newSelected);
-  // };
-
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
-
-  // csrftoken and sessionid from django session
   
 
 
@@ -152,18 +107,8 @@ export default function UserList() {
       alert("Sensor Not Deleted");
     }
   };
-
-  // const handleDeleteMultiUser = (selected) => {
-  //   const deleteUsers = userList.filter((user) => !selected.includes(user.name));
-  //   setSelected([]);
-  //   setUserList(deleteUsers);
-  // };
-
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - userList.length) : 0;
-
   const filteredUsers = applySortFilter(userList, getComparator(order, orderBy), filterName);
-
-  // const isNotFound = !filteredUsers.length && Boolean(filterName);
 
   return (
     <Page title="User: List">
@@ -183,18 +128,12 @@ export default function UserList() {
             <TableContainer sx={{ minWidth: 800 }}>
               <Table>
                 <UserListHead
-                  // order={order}
-                  // orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  // rowCount={userList.length}
-                  // numSelected={selected.length}
-                  onRequestSort={handleRequestSort}
-                  // onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
                   {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
                     const { sensor_id, device_id, live_sensors_set, sensor_type, value_type, unit } = row;
-                    // id, name, role,  company,  status, avatarUrl, isVerified
+                  
                     const isItemSelected = selected.indexOf(sensor_id) !== -1;
 
                     return (
@@ -206,11 +145,9 @@ export default function UserList() {
                         selected={isItemSelected}
                         aria-checked={isItemSelected}
                       >
-                        {/* <TableCell padding="checkbox">
-                          <Checkbox checked={isItemSelected} onClick={() => handleClick(name)} />
-                        </TableCell> */}
+                        
                         <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-                          {/* <Avatar alt={name} src={avatarUrl} sx={{ mr: 2 }} /> */}
+                        
                           <Typography variant="subtitle2" noWrap>
                             {sensor_id}
                           </Typography>
@@ -219,16 +156,6 @@ export default function UserList() {
                         <TableCell align="left">{sensor_type}</TableCell>
                         <TableCell align="left">{value_type}</TableCell>
                         <TableCell align="left">{unit}</TableCell>
-                        {/* <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell> */}
-                        {/* <TableCell align="left">
-                          <Label
-                            variant={theme.palette.mode === 'light' ? 'ghost' : 'filled'}
-                            color={(status === 'banned' && 'error') || 'success'}
-                          >
-                            {sentenceCase(status)}
-                          </Label>
-                        </TableCell> */}
-
                         <TableCell align="right">
                           <UserMoreMenu onDelete={() => handleDeleteUser(sensor_id)} userName={sensor_id} />
                         </TableCell>

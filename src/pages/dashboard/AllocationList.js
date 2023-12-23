@@ -17,6 +17,7 @@ import {
 
 
 } from '@mui/material';
+import axios from 'axios';
 // routes
 import { PATH_DASHBOARD } from '../../routes/paths';
 // hooks
@@ -35,6 +36,7 @@ import { UserListHead, UserListToolbar, UserMoreMenu } from '../../sections/@das
 
 /* eslint-disable camelcase */
 
+const django_app_host = 'http://10.6.0.56:8080'
 
 const TABLE_HEAD = [
     { id: 'id', label: 'ID', alignRight: false },
@@ -52,18 +54,17 @@ export default function UserList() {
 
 
     useEffect(() => {
-        fetch("/api/deviceAllocation", {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
-        }).then((res) => res.json()).then((data) => {
-            setUserList(data);
-            console.log(data);
-            return data;
-        }).catch((err) => {
-            console.log(err);
-        })
+
+        const fetchAllocationList = async () => {
+            try {
+                const response = await axios.get(`/api/deviceAllocation`, {headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('accessToken')}`}})
+                setUserList(response.data);
+                return response.data;
+            } catch (err) {
+                console.log(err);
+            }
+        }
+        fetchAllocationList();
     }, []);
 
     const { themeStretch } = useSettings();
@@ -111,11 +112,11 @@ export default function UserList() {
             <Page title="User: List">
                 <Container maxWidth={themeStretch ? false : 'lg'}>
                     <HeaderBreadcrumbs
-                        heading="List of Devices"
+                        heading="List of Device Allocation"
                         links={[
                             { name: 'Dashboard', href: PATH_DASHBOARD.root },
                             { name: 'User', href: PATH_DASHBOARD.user.root },
-                            { name: 'Devices' },
+                            { name: 'Allocation' },
                         ]}
                     />
 

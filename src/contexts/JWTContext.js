@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 // utils
 import axios from '../utils/axios';
 import { isValidToken, setSession } from '../utils/jwt';
+// import environment variables from root .env file
+
 
 // ----------------------------------------------------------------------
 
@@ -14,6 +16,10 @@ const initialState = {
 
 // ignore camel case in this file
 /* eslint camelcase: ["error", {ignoreDestructuring: true, allow: ["user_details"]}] */
+/* eslint-disable camelcase */
+
+
+const django_app_host = 'http://10.6.0.56:8080'
 
 const handlers = {
   INITIALIZE: (state, action) => {
@@ -79,7 +85,7 @@ function AuthProvider({ children }) {
         if (token && isValidToken(token)) {
           setSession(token);
 
-          const response = await axios.get('http://localhost:8080/accounts/getUser');
+          const response = await axios.get(`${django_app_host}/accounts/getUser/`);
           const user_details = response.data;
           console.log("Hello");
           console.log(user_details);
@@ -120,7 +126,7 @@ function AuthProvider({ children }) {
       formData.append('email', email);
       formData.append('password', password);
   
-      const response = await axios.post('http://localhost:8080/accounts/login/', formData);
+      const response = await axios.post(`${django_app_host}/accounts/login/`, formData);
 
   
       console.log(response.data);
@@ -153,7 +159,9 @@ function AuthProvider({ children }) {
       formData.append('name', `${firstName} ${lastName}`);
       formData.append('password', password);
       formData.append('password2', password);
-    const response = await axios.post('http://localhost:8080/accounts/register/', formData); 
+    
+    
+    const response = await axios.post(`${django_app_host}/accounts/register/`, formData); 
     console.log(response.data);
     const { token, user_details } = response.data;
     console.log(user_details)
