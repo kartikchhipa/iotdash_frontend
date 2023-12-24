@@ -16,8 +16,6 @@ import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
 
 // ----------------------------------------------------------------------
 
-const django_app_host = 'http://10.6.0.56:8080'
-
 export default function AddDevice() {
   const { themeStretch } = useSettings();
   const [allUsers, setAllUsers] = useState(null);
@@ -76,7 +74,7 @@ export default function AddDevice() {
       /* eslint-disable prefer-template */
       
       const response = await axios.post(
-        `/api/devices/`, formData, {headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }})
+        `http://10.6.0.56:8080/api/devices/`, formData, {headers: { 'Content-Type': 'application/json', withCredentials: true }})
 
       if (response.status === 200) {
         alert("Device Added Succesfully!");
@@ -117,7 +115,7 @@ export default function AddDevice() {
       /* eslint-disable prefer-template */
       
       const response = await axios.post(
-        `/api/addSensor/`, formData, {headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }})
+        `http://10.6.0.56:8080/api/addSensor/`, formData, {headers: { 'Content-Type': 'application/json', withCredentials: true }});
 
       if (response.status === 200) {
         alert("Sensor Added Succesfully!");
@@ -147,7 +145,7 @@ export default function AddDevice() {
       /* eslint-disable prefer-template */
       
       const response = await axios.post(
-        `/api/deviceAllocation/`, formData, {headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }})
+        `http://10.6.0.56:8080/api/deviceAllocation/`, formData, {headers: { 'Content-Type': 'application/json',  withCredentials: true }});
 
     if (response.status === 200) {
       alert("Device Mapped Succesfully!");
@@ -163,7 +161,7 @@ export default function AddDevice() {
   useEffect(() => {
     const fetchUsers = async () => {
       try{
-        const response = await axios.get(`/accounts/getAllUsers/`, {headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }})
+        const response = await axios.get(`http://10.6.0.56:8080/accounts/getAllUsers/`, {headers: { 'Content-Type': 'application/json', withCredentials: true }});
         setAllUsers(response.data);
         return response.data;
       } catch (err) {
@@ -179,7 +177,7 @@ export default function AddDevice() {
 
     const fetchSensorData = async () => {
       try{
-        const response = await axios.get(`/api/sensorData/`, {headers: { 'Content-Type': 'application/json' , Authorization: `Bearer ${localStorage.getItem('token')}` }})
+        const response = await axios.get(`http://10.6.0.56:8080/api/sensorData/`, {headers: { 'Content-Type': 'application/json' , withCredentials: true }})
         setSensorData(response.data);
         return response.data;
       } catch (err) {

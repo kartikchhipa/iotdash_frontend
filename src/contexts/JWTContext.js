@@ -19,8 +19,6 @@ const initialState = {
 /* eslint-disable camelcase */
 
 
-const django_app_host = 'http://10.6.0.56:8080'
-
 const handlers = {
   INITIALIZE: (state, action) => {
     const { isAuthenticated, user_details } = action.payload;
@@ -80,15 +78,11 @@ function AuthProvider({ children }) {
   useEffect(() => {
     const initialize = async () => {
       try {
-        const token = window.localStorage.getItem('token');
-
+        const token = window.localStorage.getItem('accessToken');
         if (token && isValidToken(token)) {
           setSession(token);
-
-          const response = await axios.get(`${django_app_host}/accounts/getUser/`);
-          const user_details = response.data;
-          console.log("Hello");
-          console.log(user_details);
+          const { data } = await axios.get('http://10.6.0.56:8080/accounts/user/', { headers: { Authorization: `Bearer ${token}` } });
+          const user_details = data;
           dispatch({
             type: 'INITIALIZE',
             payload: {
@@ -96,7 +90,33 @@ function AuthProvider({ children }) {
               user_details,
             },
           });
-        } else {
+        }
+        else if (token && !isValidToken(token)) {
+          const response = await axios.post("http://10.6.0.56:8080/accounts/refresh/", {}, { withCredentials: true });
+          if (response.status === 200) {
+            setSession(response.data.token);
+            const { data } = await axios.get('http://10.6.0.56:8080/accounts/user/', { headers: { Authorization: `Bearer ${response.data.token}` } });
+            const user_details = data;
+            dispatch({
+              type: 'INITIALIZE',
+              payload: {
+                isAuthenticated: true,
+                user_details,
+              },
+            });
+          }
+          else {
+            setSession(null);
+            dispatch({
+              type: 'INITIALIZE',
+              payload: {
+                isAuthenticated: false,
+                user_details: null,
+              },
+            });
+          }
+        }
+        else {
           dispatch({
             type: 'INITIALIZE',
             payload: {
@@ -118,23 +138,17 @@ function AuthProvider({ children }) {
     };
 
     initialize();
-  },[]);
+  }, []);
 
   const login = async (email, password) => {
     try {
       const formData = new FormData();
       formData.append('email', email);
       formData.append('password', password);
-  
-      const response = await axios.post(`${django_app_host}/accounts/login/`, formData);
 
-  
-      console.log(response.data);
-      
+      const { data } = await axios.post(`http://10.6.0.56:8080/accounts/login/`, formData, { withCredentials: true });
       /* eslint-disable camelcase */
-      const { token,  user_details} = response.data;
-      localStorage.setItem('token', token.access)
-      localStorage.setItem('refresh', token.refresh)
+      const { token, user_details } = data;
       setSession(token);
       dispatch({
         type: 'LOGIN',
@@ -142,7 +156,7 @@ function AuthProvider({ children }) {
           user_details,
         },
       });
-      console.log(handlers)
+      
     } catch (error) {
       if (error.response && error.response.data) {
         console.error('Login failed:', error.response.data);
@@ -151,21 +165,19 @@ function AuthProvider({ children }) {
       }
     }
   };
-  
-  
+
+
   const register = async (email, password, firstName, lastName) => {
     const formData = new FormData();
-      formData.append('email', email);
-      formData.append('name', `${firstName} ${lastName}`);
-      formData.append('password', password);
-      formData.append('password2', password);
-    
-    
-    const response = await axios.post(`${django_app_host}/accounts/register/`, formData); 
-    console.log(response.data);
-    const { token, user_details } = response.data;
-    console.log(user_details)
-    localStorage.setItem('token', token.access);
+    formData.append('email', email);
+    formData.append('name', `${firstName} ${lastName}`);
+    formData.append('password', password);
+    formData.append('password2', password);
+
+
+    const { data } = await axios.post(`http://10.6.0.56:8080/accounts/register/`, formData);
+    const { token, user_details } = data;
+    localStorage.setItem('token', token);
     localStorage.setItem('user_details', user_details);
     dispatch({
       type: 'REGISTER',

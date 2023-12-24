@@ -57,7 +57,7 @@ export default function UserList() {
 
         const fetchAllocationList = async () => {
             try {
-                const response = await axios.get(`/api/deviceAllocation`, {headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('accessToken')}`}})
+                const response = await axios.get(`http://10.6.0.56:8080/api/deviceAllocation`, {headers: {'Content-Type': 'application/json', withCredentials: true}});
                 setUserList(response.data);
                 return response.data;
             } catch (err) {

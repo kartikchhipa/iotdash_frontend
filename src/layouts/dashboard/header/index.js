@@ -71,12 +71,12 @@ export default function DashboardHeader({ onOpenSidebar, isCollapse = false, ver
 
   useEffect(() => {
     const fetchDevices = async () => {
-      try{
-        const response = await axios.get('/api/devices/', {headers : {Authorization: `Bearer ${localStorage.getItem('accessToken')}`}});
+      try {
+        const response = await axios.get('http://10.6.0.56:8080/api/devices/', { withCredentials: true });
         setDevices(response.data);
         return response.data;
       }
-      catch(err){
+      catch (err) {
         console.log(err);
       }
     }
@@ -95,54 +95,61 @@ export default function DashboardHeader({ onOpenSidebar, isCollapse = false, ver
 
         {!isDesktop && (
           <IconButtonAnimate onClick={onOpenSidebar} sx={{ mr: 2, color: 'text.primary' }}>
-            <Iconify icon="eva:menu-2-fill"/>
+            <Iconify icon="eva:menu-2-fill" />
           </IconButtonAnimate>
         )}
 
-        <TextField
-          select
-          label="Select Device"
-          SelectProps={{ native: true }}
-          onChange={(e) => setSelectedDevice(e.target.value)}
-          sx={{
+        <Grid container spacing={2} alignItems="center">
+          <Grid item xs={10} md={5} xl={3} lg={3}>
+            <TextField
+              select
+              label="Select Device"
+              SelectProps={{ native: true }}
+              onChange={(e) => setSelectedDevice(e.target.value)}
+              fullWidth
 
-            paddingTop: 2,
-            '& label': { top: 8, left: 0, typography: 'subtitle1' },
-            '& fieldset': { border: '0 !important' },
-            '& select': {
-              pl: 1,
-              py: 0.5,
-              pr: '24px !important',
-              typography: 'subtitle1',
-            },
-            '& .MuiOutlinedInput-root': {
-              borderRadius: 0.75,
-              bgcolor: 'background.neutral',
-            },
-            '& .MuiNativeSelect-icon': {
-              top: 4,
-              right: 0,
-              width: 20,
-              height: 20,
-            },
-          }}
-        >
-          <option  value=" " key="Choose A Device">{}</option>
-          {devices.map((option) => (
-          <option   key={option.device_id} value={option.device_id}>
-            {option.device_id}
-          </option> 
-        ))}
-        </TextField>
-          
-        
-        
+              sx={{
 
-        
+                paddingTop: 2,
+                '& label': { top: 8, left: 0, typography: 'subtitle1' },
+                '& fieldset': { border: '0 !important' },
+                '& select': {
+                  pl: 1,
+                  py: 0.5,
+                  pr: '24px !important',
+                  typography: 'subtitle1',
+                },
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 0.75,
+                  bgcolor: 'background.neutral',
+                },
+                '& .MuiNativeSelect-icon': {
+                  top: 4,
+                  right: 0,
+                  width: 20,
+                  height: 20,
+                },
+              }}
+            >
+              <option value=" " key="Choose A Device">{ }</option>
+              {devices.map((option) => (
+                <option key={option.device_id} value={option.device_id}>
+                  {option.device_id}
+                </option>
+              ))}
+            </TextField>
+          </Grid>
+        </Grid>
+
+
+
+
+
+
         <Box sx={{ flexGrow: 1 }} />
 
         <Stack direction="row" alignItems="center" spacing={{ xs: 0.5, sm: 1.5 }}>
-          <Searchbar device_id={selectedDevice}/>
+          <Searchbar device_id={selectedDevice} />
           <AccountPopover />
         </Stack>
       </Toolbar>

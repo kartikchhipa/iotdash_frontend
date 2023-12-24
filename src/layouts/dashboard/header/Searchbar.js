@@ -73,7 +73,7 @@ export default function Searchbar({device_id}) {
         formData.append('device_id', device_id);
         formData.append('start_time', startTime.format('YYYY-MM-DD HH:MM:ss.SSSSSSZ'));
         formData.append('end_time', endTime.format('YYYY-MM-DD HH:MM:ss.SSSSSSZ'));
-        const response = await axios.post('/api/sensorData/', formData, {headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('accessToken')}`}})
+        const response = await axios.post('http://10.6.0.56:8080/api/sensorData/', formData, {headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('accessToken')}`}})
         exportData(response.data);
         return response.data;
       } catch (err) {

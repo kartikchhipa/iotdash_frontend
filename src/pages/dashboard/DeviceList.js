@@ -53,7 +53,7 @@ export default function UserList() {
     const fetchDeviceList = async () => {
       try {
 
-        const response = await axios.get(`/api/devices/`, {headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('accessToken')}`}})
+        const response = await axios.get(`http://10.6.0.56:8080/api/devices/`, {headers: { withCredentials: true}})
         setUserList(response.data);
         return response.data;
       } catch (err) {
@@ -89,7 +89,7 @@ export default function UserList() {
     console.log(device_id)  
     if(confirm("Are you sure you want to delete this device?")){
       try{
-        const response = await axios.delete('/api/devices/', {data : {device_id : device_id}}, {headers : {'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('accessToken')}`}})
+        const response = await axios.delete('http://10.6.0.56:8080/api/devices/', {data : {device_id : device_id}}, {headers : { withCredentials: true}})
         if(response.status === 200){
           const deleteUser = userList.filter((device) => device.device_id !== device_id);
           setSelected([]);

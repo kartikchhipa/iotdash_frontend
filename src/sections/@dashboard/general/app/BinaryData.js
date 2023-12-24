@@ -64,7 +64,7 @@ export default function BinaryData({ allData }) {
 
 
     const emptyRows = page >= 0 ? Math.max(0, (1 + page) * rowsPerPage - graphData.length) : 0;
-    console.log(emptyRows)
+    
     
 
     return (

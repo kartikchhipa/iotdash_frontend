@@ -11,7 +11,7 @@ RoleBasedGuard.propTypes = {
 
 const useCurrentRole = () => {
   
-  const token = window.localStorage.getItem('refresh');
+  const token = window.localStorage.getItem('accessToken');
   const decodedToken = jwtDecode(token);
   console.log(decodedToken);
   return decodedToken.is_staff ? 'admin' : 'user';

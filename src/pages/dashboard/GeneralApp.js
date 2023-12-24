@@ -28,9 +28,9 @@ export default function GeneralApp() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('/api/devices', {headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('accessToken')}`}})
-          setDevices(response.data);
-          return response.data;
+        const response = await axios.get('http://10.6.0.56:8080/api/devices/', {withCredentials: true});
+        setDevices(response.data);
+        return response.data;
       } catch (err) {
         console.log(err);
       }
@@ -51,7 +51,7 @@ export default function GeneralApp() {
         try{
           const formData = new FormData();
           formData.append('device_id', selectedDevice);
-          const response = await axios.post('/api/sensorData/', formData, {headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('accessToken')}`}})
+          const response = await axios.post('http://10.6.0.56:8080/api/sensorData/', formData, {withCredentials: true})
             setData(response.data);
             return response.data;
         } catch (err) {
